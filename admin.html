@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DARKSTOR - Administração</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --surface2: #1a1a1a;
+            --gold: #d4a853;
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --text: #e2e2e2;
+            --text-muted: #a0a0a0;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: #2a2a2a;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 4px 30px rgba(0,0,0,0.5);
+            --transition: 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .admin-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; max-width: 800px; width: 100%; box-shadow: var(--shadow); max-height: 90vh; overflow-y: auto; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .admin-header h2 { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); } 50% { box-shadow: 0 0 0 14px rgba(34,197,94,0); } }
+        .btn-back { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 30px; text-decoration: none; font-size: 0.85rem; transition: var(--transition); }
+        .btn-back:hover { border-color: var(--accent-light); color: var(--accent-light); }
+        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 16px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 0.95rem; transition: var(--transition); font-family: inherit; resize: vertical; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+        .form-group small { display: block; color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; }
+        .form-row { display: flex; gap: 12px; }
+        .form-row .form-group { flex: 1; }
+        .btn-submit { width: 100%; padding: 14px; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; letter-spacing: 0.03em; transition: var(--transition); text-transform: uppercase; }
+        .btn-submit:hover { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 8px 30px rgba(124,58,237,0.4); }
+        .btn-save-config { padding: 12px 24px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: var(--transition); text-transform: uppercase; float: right; }
+        .btn-save-config:hover { background: #8b5cf6; }
+        .product-list { margin-top: 28px; border-top: 1px solid var(--border); padding-top: 20px; }
+        .product-list h3 { margin-bottom: 16px; }
+        .admin-product-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--surface2); border-radius: var(--radius-sm); margin-bottom: 10px; border: 1px solid transparent; transition: var(--transition); gap: 12px; flex-wrap: wrap; }
+        .admin-product-item:hover { border-color: var(--border); }
+        .prod-info { flex: 1; min-width: 150px; }
+        .prod-name { font-weight: 600; }
+        .prod-price { color: var(--gold); font-weight: 600; font-size: 0.9rem; }
+        .actions { display: flex; gap: 8px; align-items: center; }
+        .actions input[type="number"] { width: 90px; padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); text-align: center; }
+        .btn-sm { padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; letter-spacing: 0.02em; transition: var(--transition); border: none; text-transform: uppercase; }
+        .btn-update { background: var(--accent); color: #fff; }
+        .btn-update:hover { background: #8b5cf6; }
+        .btn-delete { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-delete:hover { background: var(--danger); color: #fff; }
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--surface); border: 1px solid var(--border); padding: 14px 24px; border-radius: 30px; font-weight: 600; box-shadow: var(--shadow); opacity: 0; transform: translateY(30px); transition: var(--transition); z-index: 999; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { border-color: var(--success); color: var(--success); }
+        .toast.error { border-color: var(--danger); color: var(--danger); }
+        .loading-text { text-align: center; color: var(--text-muted); padding: 20px; }
+        @media (max-width: 600px) {
+            .form-row { flex-direction: column; }
+            .admin-product-item { flex-direction: column; align-items: flex-start; }
+            .actions { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="admin-header">
+            <h2><span class="dot"></span> Painel Administrador</h2>
+            <a href="loja.html" class="btn-back">🏪 Ir para Loja</a>
+        </div>
+
+        <div class="section-title">⚙️ Configurações</div>
+        <div class="form-group">
+            <label>Número do WhatsApp (com DDD)</label>
+            <input type="text" id="inputWhatsApp" placeholder="Ex: 5511999999999">
+            <small>Número que receberá as mensagens de compra.</small>
+        </div>
+        <button class="btn-save-config" id="btnSalvarWhatsApp">💾 SALVAR</button>
+        <div style="clear:both; margin-bottom:24px;"></div>
+
+        <div class="section-title">🆕 Criar Produto</div>
+        <form id="formProduto">
+            <div class="form-group"><label>Nome do Produto</label><input type="text" id="inputNome" placeholder="Ex: Fone Bluetooth Pro" required></div>
+            <div class="form-group"><label>Descrição</label><textarea id="inputDesc" rows="2" placeholder="Descreva o produto..." required></textarea></div>
+            <div class="form-row">
+                <div class="form-group"><label>Preço (R$)</label><input type="number" id="inputPreco" placeholder="149.90" step="0.01" min="0.01" required></div>
+                <div class="form-group"><label>Link da Imagem (opcional)</label><input type="url" id="inputImagem" placeholder="https://..."></div>
+            </div>
+            <button type="submit" class="btn-submit">🚀 CRIAR PRODUTO</button>
+        </form>
+
+        <div class="product-list">
+            <h3>📦 Produtos Cadastrados</h3>
+            <div id="adminProductList"><p class="loading-text">Carregando...</p></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, deleteDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        // NOVA CONFIGURAÇÃO DO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyA9YeujuGrXLNuxVFKrlzD2TScqGeMKtHw",
+            authDomain: "darkstor-80ead.firebaseapp.com",
+            projectId: "darkstor-80ead",
+            storageBucket: "darkstor-80ead.firebasestorage.app",
+            messagingSenderId: "43621257501",
+            appId: "1:43621257501:web:42a0d164355088dd8591f4",
+            measurementId: "G-F3CFLJPX9C"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const produtosRef = collection(db, "produtos");
+        const q = query(produtosRef, orderBy("nome"));
+        let produtos = [];
+
+        onSnapshot(doc(db, "configuracoes", "whatsapp"), (docSnap) => {
+            if (docSnap.exists()) document.getElementById('inputWhatsApp').value = docSnap.data().numero || "";
+        });
+
+        onSnapshot(q, (snapshot) => {
+            produtos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderizarLista();
+        }, () => {
+            document.getElementById('adminProductList').innerHTML = '<p style="color:#ef4444; text-align:center;">Erro de conexão!</p>';
+        });
+
+        document.getElementById('btnSalvarWhatsApp').addEventListener('click', async () => {
+            const numero = document.getElementById('inputWhatsApp').value.trim();
+            try {
+                await setDoc(doc(db, "configuracoes", "whatsapp"), { numero });
+                mostrarToast('Número salvo! 📱', 'success');
+            } catch (e) { mostrarToast('Erro ao salvar', 'error'); }
+        });
+
+        function mostrarToast(msg, tipo = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast ' + tipo + ' show';
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        document.getElementById('formProduto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('inputNome').value.trim();
+            const desc = document.getElementById('inputDesc').value.trim();
+            const preco = parseFloat(document.getElementById('inputPreco').value);
+            const imagem = document.getElementById('inputImagem').value.trim();
+            if (!nome || !desc || isNaN(preco) || preco <= 0) { mostrarToast('Preencha os campos obrigatórios!', 'error'); return; }
+            try {
+                await addDoc(produtosRef, { nome, descricao: desc, preco, imagem: imagem || '' });
+                document.getElementById('formProduto').reset();
+                mostrarToast('Produto criado! ✅', 'success');
+            } catch (e) { mostrarToast('Erro ao criar', 'error'); }
+        });
+
+        window.atualizarPreco = async function(id) {
+            const input = document.getElementById(`preco-${id}`);
+            const novoPreco = parseFloat(input.value);
+            if (isNaN(novoPreco) || novoPreco <= 0) { mostrarToast('Preço inválido!', 'error'); return; }
+            try {
+                await updateDoc(doc(db, "produtos", id), { preco: novoPreco });
+                mostrarToast('Preço atualizado! 💰', 'success');
+            } catch (e) { mostrarToast('Erro ao atualizar', 'error'); }
+        };
+
+        window.excluirProduto = async function(id) {
+            if (!confirm('Excluir permanentemente?')) return;
+            try {
+                await deleteDoc(doc(db, "produtos", id));
+                mostrarToast('Produto excluído! 🗑️', 'success');
+            } catch (e) { mostrarToast('Erro ao excluir', 'error'); }
+        };
+
+        function renderizarLista() {
+            const container = document.getElementById('adminProductList');
+            if (produtos.length === 0) {
+                container.innerHTML = '<p style="color:#a0a0a0; text-align:center; padding:20px;">Nenhum produto.</p>';
+                return;
+            }
+            container.innerHTML = produtos.map(p => `
+                <div class="admin-product-item">
+                    <div class="prod-info"><div class="prod-name">${p.nome}</div><div class="prod-price">R$ ${Number(p.preco).toFixed(2).replace('.', ',')}</div></div>
+                    <div class="actions">
+                        <input type="number" id="preco-${p.id}" value="${Number(p.preco).toFixed(2)}" step="0.01" min="0.01">
+                        <button class="btn-sm btn-update" onclick="window.atualizarPreco('${p.id}')">ATUALIZAR</button>
+                        <button class="btn-sm btn-delete" onclick="window.excluirProduto('${p.id}')">EXCLUIR</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
